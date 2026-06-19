@@ -94,3 +94,17 @@ def set_value(id: int, prio: Annotated[int | None, typer.Option(..., "--prio", "
 def show(id: int):
     path, _ = find_by_id(id)
     log.message(path.read_text())
+
+
+@app.command("done")
+@app.command("close")
+def close(id: int):
+    path, doc = find_by_id(id)
+    frontmatter = FrontMatter(**doc.metadata)
+    frontmatter.finished_at = datetime.now()
+
+    new_path = settings.root / f"closed/{path.name}"
+    new_path.parent.mkdir(parents=True, exist_ok=True)
+    new_path.write_text(template.render(frontmatter, doc.content))
+    path.unlink()
+    log.message(f"{path} -> {new_path}")
