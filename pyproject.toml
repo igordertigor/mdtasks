@@ -1,6 +1,6 @@
 [project]
 name = "mdtasks"
-version = "0.2.0"
+version = "0.2.1"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
@@ -14,8 +14,8 @@ dependencies = [
 ]
 
 [project.scripts]
-t = "mdasks:app"
-mdtasks = "mdasks:app"
+t = "mdtasks:app"
+mdtasks = "mdtasks:app"
 
 [build-system]
 requires = ["hatchling"]
