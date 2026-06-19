@@ -45,7 +45,9 @@ def ls(context: str = ":env:"):
     table.add_column("Prio")
 
     for task in tasks:
-        table.add_row(task.project, task.context, str(task.id), task.title, str(task.prio))
+        table.add_row(
+            task.project, task.context, str(task.id), task.title, str(task.prio)
+        )
 
     log.message(table)
 
@@ -55,7 +57,9 @@ def new(slug: str, context: str = ":env:", use_full_spec: bool = False):
     id = get_new_id()
     if context == ":env:":
         context = settings.default_context
-    frontmatter = FrontMatter(project=settings.project, context=context, id=id, created_at=datetime.now())
+    frontmatter = FrontMatter(
+        project=settings.project, context=context, id=id, created_at=datetime.now()
+    )
     base = template.render(frontmatter, use_full_spec=use_full_spec)
     dest = settings.root / f"open/{slug}.md"
     dest.parent.mkdir(parents=True, exist_ok=True)
@@ -78,7 +82,10 @@ def edit(id: int):
 
 
 @app.command("set")
-def set_value(id: int, prio: Annotated[int | None, typer.Option(..., "--prio", "--priority", "-p") ] = None):
+def set_value(
+    id: int,
+    prio: Annotated[int | None, typer.Option(..., "--prio", "--priority", "-p")] = None,
+):
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     if prio:
@@ -86,6 +93,15 @@ def set_value(id: int, prio: Annotated[int | None, typer.Option(..., "--prio", "
     else:
         log.warning("Nothing to set")
         raise typer.Exit(3)
+
+    path.write_text(template.render(frontmatter, doc.content))
+
+
+@app.command("start")
+def start(id: int):
+    path, doc = find_by_id(id)
+    frontmatter = FrontMatter(**doc.metadata)
+    frontmatter.started_at = datetime.now()
 
     path.write_text(template.render(frontmatter, doc.content))
 
