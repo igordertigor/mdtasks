@@ -20,7 +20,7 @@ app = typer.Typer()
 
 
 @app.command("ls")
-def ls(context: str = ":env:"):
+def ls(context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:"):
     if context == ":env:":
         context = settings.default_context
 
@@ -34,7 +34,8 @@ def ls(context: str = ":env:"):
             title = id
 
         task = TaskShort(**{"title": title, **frontmatter})
-        tasks.append(task)
+        if context.lower() in {"any", "all"} or task.context.lower() == context.lower():
+            tasks.append(task)
 
     tasks = sorted(tasks, key=lambda t: (-t.prio, t.id))
     table = Table()
@@ -53,7 +54,7 @@ def ls(context: str = ":env:"):
 
 
 @app.command("new")
-def new(slug: str, context: str = ":env:", use_full_spec: bool = False):
+def new(slug: str, context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:", use_full_spec: bool = False):
     id = get_new_id()
     if context == ":env:":
         context = settings.default_context
