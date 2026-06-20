@@ -42,3 +42,7 @@ For other kinds of usage, use `t --help`.
 ## Projects vs Contexts
 
 Projects and contexts may appear quite similar, but they aren't really: Typically, projects refer to an overarching concept. You work on that project for a longer time. That's why mdtasks isn't really able to filter by project from the command line. The idea is that you might have projects "private" and "work". You can filter by project only via environment variables (e.g. by setting `MDTASKS_PROJECT` for a particular directory via direnv). On the other hand, contexts are less tightly coupled to a particular directory and the cli typically allows for ad-hoc switches between different contexts (although you can also set the default context via environment variable).
+
+## Versioning
+
+We strictly use semantic versioning. Don't be fooled by the 1.x major version. THis isn't necessarily super stable software. However, we strictly increase version numbers on every breaking change.
