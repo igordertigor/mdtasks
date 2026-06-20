@@ -2,7 +2,7 @@ from datetime import datetime
 import os
 from pathlib import Path
 from typing import Annotated
-from mdtasks.blocking import is_blocked
+from mdtasks.blocking import get_blockers, is_blocked
 from rich.table import Table
 import typer
 import shutil
@@ -47,12 +47,18 @@ def ls(
         table.add_column("Project")
     table.add_column("Context")
     table.add_column("Id")
-    table.add_column("Title")
     table.add_column("Prio")
+    table.add_column("Title")
+    table.add_column("Blockers")
 
     for task in tasks:
-        blocked = "✗" if is_blocked(task, tasks) else ""
-        content = [task.context, f"{task.id} {blocked}", task.title, str(task.prio)]
+        content = [
+            task.context,
+            str(task.id),
+            str(task.prio),
+            task.title,
+            ", ".join(str(i) for i in get_blockers(task, tasks)),
+        ]
         if show_project:
             content.insert(0, task.project)
         table.add_row(*content)
@@ -98,7 +104,9 @@ def edit(id: int):
 def set_value(
     id: int,
     prio: Annotated[int | None, typer.Option(..., "--prio", "--priority", "-p")] = None,
-    blocked: Annotated[int | None, typer.Option(..., "--blocked", "--block", "-b")] = None,
+    blocked: Annotated[
+        int | None, typer.Option(..., "--blocked", "--block", "-b")
+    ] = None,
 ):
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
