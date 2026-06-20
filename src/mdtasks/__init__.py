@@ -54,7 +54,11 @@ def ls(context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:"):
 
 
 @app.command("new")
-def new(slug: str, context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:", use_full_spec: bool = False):
+def new(
+    slug: str,
+    context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:",
+    use_full_spec: bool = False,
+):
     id = get_new_id()
     if context == ":env:":
         context = settings.default_context
@@ -115,14 +119,28 @@ def show(id: int):
 
 
 @app.command("done")
+def done(id: int):
+    path, doc = find_by_id(id)
+    frontmatter = FrontMatter(**doc.metadata)
+    frontmatter.finished_at = datetime.now()
+
+    new_path = settings.root / f"done/{path.name}"
+    new_path.parent.mkdir(parents=True, exist_ok=True)
+    new_path.write_text(template.render(frontmatter, doc.content))
+    path.unlink()
+    log.message(f"{path} -> {new_path}")
+
+
 @app.command("close")
-def close(id: int):
+def close(id: int, reason: list[str]):
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     frontmatter.finished_at = datetime.now()
 
     new_path = settings.root / f"closed/{path.name}"
     new_path.parent.mkdir(parents=True, exist_ok=True)
-    new_path.write_text(template.render(frontmatter, doc.content))
+    new_path.write_text(
+        template.render(frontmatter, "\n\n".join([doc.content, " ".join(reason)]))
+    )
     path.unlink()
     log.message(f"{path} -> {new_path}")
