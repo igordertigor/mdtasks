@@ -90,6 +90,7 @@ def set_value(
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     if prio:
+        log.message(f"Setting prio {frontmatter.prio} -> {prio}")
         frontmatter.prio = prio
     else:
         log.warning("Nothing to set")
