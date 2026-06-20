@@ -20,7 +20,10 @@ app = typer.Typer()
 
 
 @app.command("ls")
-def ls(context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:"):
+def ls(
+    context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:",
+    show_project: bool = False,
+):
     if context == ":env:":
         context = settings.default_context
 
@@ -39,16 +42,18 @@ def ls(context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:"):
 
     tasks = sorted(tasks, key=lambda t: (-t.prio, t.id))
     table = Table()
-    table.add_column("Project")
+    if show_project:
+        table.add_column("Project")
     table.add_column("Context")
     table.add_column("Id")
     table.add_column("Title")
     table.add_column("Prio")
 
     for task in tasks:
-        table.add_row(
-            task.project, task.context, str(task.id), task.title, str(task.prio)
-        )
+        content = [task.context, str(task.id), task.title, str(task.prio)]
+        if show_project:
+            content.insert(0, task.project)
+        table.add_row(*content)
 
     log.message(table)
 
