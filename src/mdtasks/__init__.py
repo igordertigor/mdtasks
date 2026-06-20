@@ -91,12 +91,17 @@ def edit(id: int):
 def set_value(
     id: int,
     prio: Annotated[int | None, typer.Option(..., "--prio", "--priority", "-p")] = None,
+    blocked: Annotated[int | None, typer.Option(..., "--blocked", "--block", "-b")] = None,
 ):
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     if prio:
         log.message(f"Setting prio {frontmatter.prio} -> {prio}")
         frontmatter.prio = prio
+    elif blocked is not None:
+        blockers = set(formatter.blocked_by)
+        blockers.add(blocked)
+        frontmatter.blocked_by = list(blockers)
     else:
         log.warning("Nothing to set")
         raise typer.Exit(3)
