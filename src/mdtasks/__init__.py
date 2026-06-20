@@ -53,6 +53,7 @@ def ls(context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:"):
     log.message(table)
 
 
+@app.command("add")
 @app.command("new")
 def new(
     slug: str,
