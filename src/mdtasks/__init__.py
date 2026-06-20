@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 from pathlib import Path
 from typing import Annotated
+from mdtasks.blocking import is_blocked
 from rich.table import Table
 import typer
 import shutil
@@ -50,7 +51,8 @@ def ls(
     table.add_column("Prio")
 
     for task in tasks:
-        content = [task.context, str(task.id), task.title, str(task.prio)]
+        blocked = "✗" if is_blocked(task, tasks) else ""
+        content = [task.context, f"{task.id} {blocked}", task.title, str(task.prio)]
         if show_project:
             content.insert(0, task.project)
         table.add_row(*content)

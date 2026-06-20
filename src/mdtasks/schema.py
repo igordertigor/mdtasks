@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import datetime
 
 
@@ -10,6 +10,7 @@ class FrontMatter(BaseModel):
     started_at: datetime | None = None
     finished_at: datetime | None = None
     prio: int = 0
+    blocked_by: list[int] = Field(default_factory=list)
 
 
 class TaskShort(FrontMatter):
