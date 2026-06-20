@@ -126,6 +126,15 @@ wheels = [
 ]
 
 [[package]]
+name = "commitlint"
+version = "1.13.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7a/00/e2dcd72cd76969b74e811ed06506183b00f9dd0e0f308a4f3672300a32a2/commitlint-1.13.3.tar.gz", hash = "sha256:e92522e064010ae85b825b73923760c0e4ff34954859fec4976f3e86a342ea30", size = 23968 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e0/8a/a524c54aa6a8c712ddea2da6ffbbdde93c2c4eeb8121cae2a43e266c1cea/commitlint-1.13.3-py3-none-any.whl", hash = "sha256:330a9aa892b0bca9d671c5cd059755d9d48468f35095efe1be09ba667085b3f7", size = 26742 },
+]
+
+[[package]]
 name = "cryptography"
 version = "49.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -278,7 +287,7 @@ wheels = [
 
 [[package]]
 name = "mdtasks"
-version = "0.1.0"
+version = "1.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
@@ -292,6 +301,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "build" },
+    { name = "commitlint" },
     { name = "twine" },
 ]
 
@@ -308,6 +318,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "build", specifier = ">=1.5.0" },
+    { name = "commitlint", specifier = ">=1.13.3" },
     { name = "twine", specifier = ">=6.2.0" },
 ]
 
