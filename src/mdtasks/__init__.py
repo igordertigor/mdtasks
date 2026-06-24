@@ -22,12 +22,12 @@ app = typer.Typer()
 
 @app.command("ls")
 def ls(
-    context: Annotated[list[str], typer.Option(..., "--context", "-c")] = ":env:",
+    context: Annotated[list[str], typer.Option(..., "--context", "-c")] = [],
     min_prio: Annotated[int, typer.Option(..., "--min-prio", "--prio", "--priority", "-p")] = 0,
     show_project: bool = False,
 ):
-    if context == ":env:":
-        context = settings.default_context
+    if not context:
+        context = [settings.default_context]
 
     context_lower = [c.lower() for c in context]
     is_all_context = "any" in context_lower or "all" in context_lower
