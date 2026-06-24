@@ -22,12 +22,15 @@ app = typer.Typer()
 
 @app.command("ls")
 def ls(
-    context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:",
+    context: Annotated[list[str], typer.Option(..., "--context", "-c")] = ":env:",
     min_prio: Annotated[int, typer.Option(..., "--min-prio", "--prio", "--priority", "-p")] = 0,
     show_project: bool = False,
 ):
     if context == ":env:":
         context = settings.default_context
+
+    context_lower = [c.lower() for c in context]
+    is_all_context = "any" in context_lower or "all" in context_lower
 
     tasks = []
     for fname in (settings.root / "open").glob("*.md"):
@@ -39,7 +42,7 @@ def ls(
             title = id
 
         task = TaskShort(**{"title": title, **frontmatter})
-        if context.lower() in {"any", "all"} or task.context.lower() == context.lower():
+        if is_all_context or task.context.lower() in context_lower:
             if task.prio >= min_prio:
                 tasks.append(task)
 
