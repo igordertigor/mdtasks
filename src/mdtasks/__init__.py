@@ -23,6 +23,7 @@ app = typer.Typer()
 @app.command("ls")
 def ls(
     context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:",
+    min_prio: Annotated[int, typer.Option(..., "--min-prio", "--prio", "--priority", "-p")] = 0,
     show_project: bool = False,
 ):
     if context == ":env:":
@@ -39,7 +40,8 @@ def ls(
 
         task = TaskShort(**{"title": title, **frontmatter})
         if context.lower() in {"any", "all"} or task.context.lower() == context.lower():
-            tasks.append(task)
+            if task.prio >= min_prio:
+                tasks.append(task)
 
     tasks = sorted(tasks, key=lambda t: (-t.prio, t.id))
     table = Table()
