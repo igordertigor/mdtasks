@@ -114,7 +114,7 @@ def set_value(
         log.message(f"Setting prio {frontmatter.prio} -> {prio}")
         frontmatter.prio = prio
     elif blocked is not None:
-        blockers = set(formatter.blocked_by)
+        blockers = set(frontmatter.blocked_by)
         blockers.add(blocked)
         frontmatter.blocked_by = list(blockers)
     else:
