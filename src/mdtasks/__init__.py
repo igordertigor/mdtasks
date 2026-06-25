@@ -22,12 +22,35 @@ app = typer.Typer()
 
 @app.command("ls")
 def ls(
-    context: Annotated[list[str], typer.Option(..., "--context", "-c")] = [],
+    context: Annotated[
+        list[str],
+        typer.Option(
+            ...,
+            "--context",
+            "-c",
+            help=(
+                "Apply to selected contexts only. Can be used multiple times "
+                "to select multiple contexts. Will read from MDTASKS_DEFAULT_CONTEXT "
+                "environment variable if not specified."
+            ),
+        ),
+    ] = [],
     min_prio: Annotated[
-        int, typer.Option(..., "--min-prio", "--prio", "--priority", "-p")
+        int,
+        typer.Option(
+            ...,
+            "--min-prio",
+            "--prio",
+            "--priority",
+            "-p",
+            help=("Only show tickets with the specified priority or higher."),
+        ),
     ] = 0,
-    show_project: bool = False,
+    show_project: Annotated[
+        bool, typer.Option(..., help="Include 'project' in the output table")
+    ] = False,
 ):
+    """Show open tickets with filtering options."""
     if not context:
         context = [settings.default_context]
 
@@ -76,10 +99,31 @@ def ls(
 @app.command("add")
 @app.command("new")
 def new(
-    slug: str,
-    context: Annotated[str, typer.Option(..., "--context", "-c")] = ":env:",
-    use_full_spec: bool = False,
+    slug: Annotated[str, typer.Argument(help="Brief slug of the ticket")],
+    context: Annotated[
+        str,
+        typer.Option(
+            ...,
+            "--context",
+            "-c",
+            help=(
+                "Initialize the ticket as belonging to the given context. "
+                "Will read from MDTASKS_DEFAULT_CONTEXT environment variable if not specified."
+            ),
+        ),
+    ] = ":env:",
+    use_full_spec: Annotated[
+        bool,
+        typer.Option(
+            ...,
+            help=(
+                "Show the full frontmatter specification instead of "
+                "only the fields that are actually used."
+            ),
+        ),
+    ] = False,
 ):
+    """Create a new ticket."""
     id = get_new_id()
     if context == ":env:":
         context = settings.default_context
@@ -105,19 +149,33 @@ def new(
 
 
 @app.command("edit")
-def edit(id: int):
+def edit(id: Annotated[int, typer.Argument(..., help="ticket id")]):
+    """Edit an existing ticket"""
     path, _ = find_by_id(id)
     subprocess.run([get_editor(), str(path)])
 
 
 @app.command("set")
 def set_value(
-    id: int,
-    prio: Annotated[int | None, typer.Option(..., "--prio", "--priority", "-p")] = None,
+    id: Annotated[int, typer.Argument(..., help="ticket id")],
+    prio: Annotated[
+        int | None,
+        typer.Option(
+            ..., "--prio", "--priority", "-p", help="Update priority to this value."
+        ),
+    ] = None,
     blocked: Annotated[
-        int | None, typer.Option(..., "--blocked", "--block", "-b")
+        int | None,
+        typer.Option(
+            ...,
+            "--blocked",
+            "--block",
+            "-b",
+            help="Add a ticket id that blocks this ticket.",
+        ),
     ] = None,
 ):
+    """Selectively set meta data of a ticket"""
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     if prio:
@@ -135,7 +193,8 @@ def set_value(
 
 
 @app.command("start")
-def start(id: int):
+def start(id: Annotated[int, typer.Argument(help="ticket id")]):
+    """Record the start of a ticket"""
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     frontmatter.started_at = datetime.now()
@@ -144,13 +203,20 @@ def start(id: int):
 
 
 @app.command("show")
-def show(id: int):
+def show(id: Annotated[int, typer.Argument(help="ticket id")]):
+    """Show details for a ticket"""
     path, _ = find_by_id(id)
     log.message(path.read_text())
 
 
 @app.command("done")
-def done(id: int):
+def done(id: Annotated[int, typer.Argument(help="ticket id")]):
+    """Mark ticket as done.
+
+    Note that there is a difference between done and closed:
+        - done: Work has been done
+        - closed: Work is no longer relevant
+    """
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     frontmatter.finished_at = datetime.now()
@@ -163,7 +229,19 @@ def done(id: int):
 
 
 @app.command("close")
-def close(id: int, reason: list[str]):
+def close(
+    id: Annotated[int, typer.Argument(help="ticket id")],
+    reason: Annotated[
+        list[str],
+        typer.Argument(help="Brief explanation why the ticket is being closed."),
+    ],
+):
+    """Mark ticket as closed.
+
+    Note that there is a difference between done and closed:
+        - done: Work has been done
+        - closed: Work is no longer relevant
+    """
     path, doc = find_by_id(id)
     frontmatter = FrontMatter(**doc.metadata)
     frontmatter.finished_at = datetime.now()

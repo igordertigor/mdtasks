@@ -8,7 +8,7 @@ def render(
     frontmatter: FrontMatter, content: str | None = None, use_full_spec: bool = False
 ) -> str:
     buf = io.StringIO()
-    safe_dump(frontmatter.model_dump(exclude_none=not use_full_spec), buf)
+    safe_dump(frontmatter.model_dump(exclude_unset=not use_full_spec), buf)
     fragments = [
         "---",
         buf.getvalue().strip(),
