@@ -27,3 +27,15 @@ dev-dependencies = [
     "commitlint>=1.13.3",
     "twine>=6.2.0",
 ]
+
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+follow_imports = "skip"
+ignore_missing_imports = true
+
+[tool.ruff.lint.isort]
+section-order = ["future", "testing", "types", "standard-library", "third-party", "local-folder"]
+
+[tool.ruff.lint.isort.sections]
+testing = ["unittest", "pytest", "pytest_asyncio", "hypothesis"]
+types = ["typing", "typing_extensions", "abc"]
