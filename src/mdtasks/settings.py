@@ -1,5 +1,7 @@
-from pathlib import Path
 from typing import Annotated
+
+from pathlib import Path
+
 from pydantic import AfterValidator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

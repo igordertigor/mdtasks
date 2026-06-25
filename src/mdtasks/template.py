@@ -1,9 +1,12 @@
 import io
-from yaml import safe_dump
+
 from mdtasks.schema import FrontMatter
+from yaml import safe_dump
 
 
-def render(frontmatter: FrontMatter, content: str | None = None, use_full_spec: bool = False) -> str:
+def render(
+    frontmatter: FrontMatter, content: str | None = None, use_full_spec: bool = False
+) -> str:
     buf = io.StringIO()
     safe_dump(frontmatter.model_dump(exclude_none=not use_full_spec), buf)
     fragments = [

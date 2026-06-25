@@ -1,21 +1,21 @@
-from datetime import datetime
-import os
-from pathlib import Path
 from typing import Annotated
-from mdtasks.blocking import get_blockers, is_blocked
-from rich.table import Table
-import typer
-import shutil
-import frontmatter as fm
-import re
-import tempfile
-import subprocess
 
-from mdtasks import template
+import re
+import shutil
+import subprocess
+import tempfile
+from datetime import datetime
+from pathlib import Path
+
+import frontmatter as fm
+import typer
+from mdtasks import log, template
+from mdtasks.blocking import get_blockers
+from mdtasks.editor import get_editor
 from mdtasks.schema import FrontMatter, TaskShort
 from mdtasks.settings import settings
 from mdtasks.task_id import find_by_id, get_new_id
-from mdtasks import log
+from rich.table import Table
 
 app = typer.Typer()
 
@@ -23,7 +23,9 @@ app = typer.Typer()
 @app.command("ls")
 def ls(
     context: Annotated[list[str], typer.Option(..., "--context", "-c")] = [],
-    min_prio: Annotated[int, typer.Option(..., "--min-prio", "--prio", "--priority", "-p")] = 0,
+    min_prio: Annotated[
+        int, typer.Option(..., "--min-prio", "--prio", "--priority", "-p")
+    ] = 0,
     show_project: bool = False,
 ):
     if not context:
@@ -88,9 +90,12 @@ def new(
     dest = settings.root / f"open/{slug}.md"
     dest.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(suffix=".md") as fh:
+        if not fh.name:
+            log.error("Failed to create named temp file")
+            raise typer.Exit(3)
         fh.write(base.encode())
         fh.flush()
-        subprocess.run([os.getenv("EDITOR"), fh.name])
+        subprocess.run([get_editor(), fh.name])
         result = Path(fh.name).read_text()
         if result != base:
             shutil.copy(fh.name, dest)
@@ -102,7 +107,7 @@ def new(
 @app.command("edit")
 def edit(id: int):
     path, _ = find_by_id(id)
-    subprocess.run([os.getenv("EDITOR"), str(path)])
+    subprocess.run([get_editor(), str(path)])
 
 
 @app.command("set")

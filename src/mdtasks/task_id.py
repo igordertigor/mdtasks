@@ -1,8 +1,9 @@
-from pathlib import Path
 from typing import Iterator
+
+from pathlib import Path
+
 import frontmatter as fm
 import typer
-
 from mdtasks.log import error
 from mdtasks.schema import FrontMatter
 from mdtasks.settings import settings
