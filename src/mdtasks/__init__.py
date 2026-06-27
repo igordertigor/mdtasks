@@ -58,6 +58,7 @@ def ls(
     is_all_context = "any" in context_lower or "all" in context_lower
 
     tasks = []
+    all_open_tasks = []
     for fname in (settings.root / "open").glob("*.md"):
         frontmatter = fm.load(fname)
         m = re.search(r"# (.*)", frontmatter.content)
@@ -67,6 +68,7 @@ def ls(
             title = id
 
         task = TaskShort(**{"title": title, **frontmatter})
+        all_open_tasks.append(task)
         if is_all_context or task.context.lower() in context_lower:
             if task.prio >= min_prio:
                 tasks.append(task)
@@ -87,7 +89,7 @@ def ls(
             str(task.id),
             str(task.prio),
             task.title,
-            ", ".join(str(i) for i in get_blockers(task, tasks)),
+            ", ".join(str(i) for i in get_blockers(task, all_open_tasks)),
         ]
         if show_project:
             content.insert(0, task.project)
