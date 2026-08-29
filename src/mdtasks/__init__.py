@@ -73,7 +73,7 @@ def ls(
             if task.prio >= min_prio:
                 tasks.append(task)
 
-    tasks = sorted(tasks, key=lambda t: (-t.prio, t.id))
+    tasks = sorted(tasks, key=lambda t: (-t.prio, t.context, t.id))
     table = Table()
     if show_project:
         table.add_column("Project")
