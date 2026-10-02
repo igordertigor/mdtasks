@@ -12,7 +12,7 @@ import typer
 from mdtasks import log, template
 from mdtasks.blocking import get_blockers
 from mdtasks.editor import get_editor
-from mdtasks.schema import FrontMatter, TaskShort
+from mdtasks.schema import FrontMatter, TaskShort, TicketStatus
 from mdtasks.settings import settings
 from mdtasks.task_id import find_by_id, get_new_id
 from rich.table import Table
@@ -49,6 +49,9 @@ def ls(
     show_project: Annotated[
         bool, typer.Option(..., help="Include 'project' in the output table")
     ] = False,
+    status: Annotated[
+        TicketStatus, typer.Option(..., help="Show tickets with the respective status")
+    ] = TicketStatus.open
 ):
     """Show open tickets with filtering options."""
     if not context:
@@ -59,7 +62,7 @@ def ls(
 
     tasks = []
     all_open_tasks = []
-    for fname in (settings.root / "open").glob("*.md"):
+    for fname in (settings.root / status.value).glob("*.md"):
         frontmatter = fm.load(fname)
         m = re.search(r"# (.*)", frontmatter.content)
         if m:

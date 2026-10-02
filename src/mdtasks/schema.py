@@ -1,4 +1,5 @@
 from datetime import datetime
+from enum import Enum
 
 from pydantic import BaseModel, Field
 
@@ -16,3 +17,9 @@ class FrontMatter(BaseModel):
 
 class TaskShort(FrontMatter):
     title: str
+
+
+class TicketStatus(str, Enum):
+    open = "open"
+    closed = "closed"
+    done = "done"
