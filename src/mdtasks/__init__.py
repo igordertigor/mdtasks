@@ -258,3 +258,14 @@ def close(
     )
     path.unlink()
     log.message(f"{path} -> {new_path}")
+
+@app.command("fresh-id")
+def fresh_id():
+    id = 0
+    for path, _, names in settings.root.walk():
+        if ".git" in str(path):
+            continue
+        for name in names:
+            doc = fm.load(path / name)
+            id = max(id, FrontMatter(**doc.metadata).id)
+    print(id + 1)
