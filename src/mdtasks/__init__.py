@@ -14,7 +14,7 @@ from mdtasks.blocking import get_blockers
 from mdtasks.editor import get_editor
 from mdtasks.schema import FrontMatter, TaskShort, TicketStatus
 from mdtasks.settings import settings
-from mdtasks.task_id import find_by_id, get_new_id
+from mdtasks.task_id import IGNORE, find_by_id, get_new_id, iter_all_task_files
 from rich.table import Table
 
 app = typer.Typer()
@@ -261,11 +261,4 @@ def close(
 
 @app.command("fresh-id")
 def fresh_id():
-    id = 0
-    for path, _, names in settings.root.walk():
-        if ".git" in str(path):
-            continue
-        for name in names:
-            doc = fm.load(path / name)
-            id = max(id, FrontMatter(**doc.metadata).id)
-    print(id + 1)
+    print(get_new_id())
