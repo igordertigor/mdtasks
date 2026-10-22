@@ -1,4 +1,5 @@
 from typing import Iterator
+import itertools
 
 from pathlib import Path
 
@@ -30,7 +31,11 @@ def find_by_id(id: int) -> tuple[Path, fm.Post]:
 
 
 def iter_all_task_files() -> Iterator[Path]:
-    for path, dirs, files in settings.root.walk():
+    for path, dirs, files in itertools.chain(
+        (settings.root / "open" ).walk(),
+        (settings.root / "done" ).walk(),
+        (settings.root / "closed" ).walk(),
+    ):
         dirs[:] = [d for d in dirs if d not in IGNORE]
         for fname in files:
             yield path / fname
