@@ -1,5 +1,6 @@
 from typing import Annotated
 
+import json
 import re
 import shutil
 import subprocess
@@ -12,7 +13,7 @@ import typer
 from mdtasks import log, template
 from mdtasks.blocking import get_blockers
 from mdtasks.editor import get_editor
-from mdtasks.schema import FrontMatter, TaskShort, TicketStatus
+from mdtasks.schema import FrontMatter, Output, TaskShort, TicketStatus
 from mdtasks.settings import settings
 from mdtasks.task_id import IGNORE, find_by_id, get_new_id, iter_all_task_files
 from rich.table import Table
@@ -51,7 +52,10 @@ def ls(
     ] = False,
     status: Annotated[
         TicketStatus, typer.Option(..., help="Show tickets with the respective status")
-    ] = TicketStatus.open
+    ] = TicketStatus.open,
+    output: Annotated[
+        Output, typer.Option(..., help="How to print output")
+    ] = Output.standard,
 ):
     """Show open tickets with filtering options."""
     if not context:
@@ -70,35 +74,46 @@ def ls(
         else:
             title = id
 
-        task = TaskShort(**{"title": title, **frontmatter})
+        task = TaskShort(**{"title": title, "filename": fname, **frontmatter})
         all_open_tasks.append(task)
         if is_all_context or task.context.lower() in context_lower:
             if task.prio >= min_prio:
                 tasks.append(task)
 
     tasks = sorted(tasks, key=lambda t: (-t.prio, t.context, t.id))
-    table = Table()
-    if show_project:
-        table.add_column("Project")
-    table.add_column("Context")
-    table.add_column("Id")
-    table.add_column("Prio")
-    table.add_column("Title")
-    table.add_column("Blockers")
-
-    for task in tasks:
-        content = [
-            task.context,
-            str(task.id),
-            str(task.prio),
-            task.title,
-            ", ".join(str(i) for i in get_blockers(task, all_open_tasks)),
-        ]
+    if output == Output.standard:
+        table = Table()
         if show_project:
-            content.insert(0, task.project)
-        table.add_row(*content)
+            table.add_column("Project")
+        table.add_column("Context")
+        table.add_column("Id")
+        table.add_column("Prio")
+        table.add_column("Title")
+        table.add_column("Blockers")
 
-    log.message(table)
+        for task in tasks:
+            content = [
+                task.context,
+                str(task.id),
+                str(task.prio),
+                task.title,
+                ", ".join(str(i) for i in get_blockers(task, all_open_tasks)),
+            ]
+            if show_project:
+                content.insert(0, task.project)
+            table.add_row(*content)
+
+        log.message(table)
+    elif output == Output.json:
+        print(json.dumps([t.model_dump(mode="json") for t in tasks]))
+    elif output == Output.markdown:
+        for t in tasks:
+            fname = t.filename
+            if fname:
+                fname = fname.relative_to(settings.root)
+            print(f"- [{t.prio} - {t.title} ({t.id})]({fname})")
+    else:
+        raise NotImplementedError()
 
 
 @app.command("add")

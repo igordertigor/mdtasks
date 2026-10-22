@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from pathlib import Path
 
 from pydantic import BaseModel, Field
 
@@ -17,9 +18,16 @@ class FrontMatter(BaseModel):
 
 class TaskShort(FrontMatter):
     title: str
+    filename: Path | None = None
 
 
 class TicketStatus(str, Enum):
     open = "open"
     closed = "closed"
     done = "done"
+
+
+class Output(str, Enum):
+    standard = "standard"
+    json = "json"
+    markdown = "markdown"
