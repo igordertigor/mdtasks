@@ -8,7 +8,7 @@ from mdtasks.log import error
 from mdtasks.schema import FrontMatter
 from mdtasks.settings import settings
 
-IGNORE = {".git", "__pycache__", "node_modules"}
+IGNORE = {".git", "__pycache__", "node_modules", ".stfolder",  ".obsidian"}
 
 
 def get_new_id() -> int:
